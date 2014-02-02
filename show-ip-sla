@@ -93,7 +93,7 @@ for field, format_string, suboid in fields:
     result = snmp_walk(target_oid)
     sla_id = 0
     for value in result:
-        if datatypes.has_key(field):
+        if datatypes.has_key(field) and datatypes[field].has_key(value[0][1]):
             my_value = datatypes[field][value[0][1]]
         else:
             my_value = value[0][1]
