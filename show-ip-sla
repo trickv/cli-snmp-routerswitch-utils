@@ -39,6 +39,7 @@ datatypes = {
     'Oper Sense': {
         0: 'inactive',
         1: 'ok',
+        4: 'timeout',
     }
 }
 
