@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+
+import sys
+#from pysnmp.v4.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner import cmdgen
+
+if len(sys.argv) != 2 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
+    print "Usage: %s <host>"
+    sys.exit(1)
+
+____operational_statuses = { 1: 'up', 2: 'down', 3: 'testing', 6: 'notPresent' }
+
+hostname = sys.argv[1]
+
+# 1.3.6.1.4.1.9.9.42.1.2 is the CISCO-RTTMON-MIB::rttMonCtrl table
+# 1.3.6.1.4.1.9.9.42.1.2.1.1.2.2 probe 2 owner
+
+def snmp_walk(oid):
+    print("Running SNMP walk on %s" % oid)
+    cmdGen = cmdgen.CommandGenerator()
+    errorIndication, errorStatus, errorIndex, result = cmdGen.nextCmd(
+        cmdgen.CommunityData('foo', 'public'),
+        cmdgen.UdpTransportTarget((hostname, 161)),
+        oid
+    )
+    if errorIndication or errorStatus:
+        raise Exception("SNMP Error: %s, %s" % (errorIndication, errorStatus))
+    return result
+
+base_oid = '1.3.6.1.4.1.9.9.42.1.2'
+
+fields = {
+    "Author": '1.1.2',
+    "Tag": '1.1.3',
+    "Status": '1.1.9',
+    "Protocol": '2.1.1',
+    "Target": '2.1.2',
+    "Source": '2.1.6',
+}
+
+fields = [
+    ("Owner", "%10s", "1.1.2"),
+    ("Tag", "%20s", "1.1.3"),
+    ("Status", "%10s", "1.1.9"),
+    ("Protocol", "%10s", "2.1.1"),
+    #("Target", "%15s", "2.1.2"),
+#    ("Source", "2.1.6"),
+]
+
+result = snmp_walk(base_oid + '.1.1.2') # Owner
+sla_count = len(result)
+
+print ("SLAs: %d" % sla_count)
+
+slas = []
+slas.append(" ID: ")
+
+for name, format_string, oid in fields:
+    slas[0] += format_string % name
+
+for sla_id in range(1, sla_count + 1):
+    slas.append("%3d: " % sla_id)
+
+for field, format_string, suboid in fields:
+    target_oid = "%s.%s" % (base_oid, suboid)
+    result = snmp_walk(target_oid)
+    sla_id = 0
+    for value in result:
+        sla_id += 1
+        slas[sla_id] += format_string % value[0][1]
+
+for row in slas:
+    print row
+
+sys.exit(42)
+
+import pprint
+
+x = 0
+for row in result:
+    x += 1
+    if x > 5:
+        break
+    print(dir(row))
+    for name, val in row:
+        pprint.pprint(name)
+        pprint.pprint(val)
+        print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+print len(result)
+
+pprint.pprint(result[0][0])
+sys.exit(42)
+
+operational_status_id = result[0][1]
+type = result[1][1]
+alias = result[2][1]
+name = result[3][1]
+
+if operational_status_id == '':
+    raise Exception("Requested interface id %d does not exist, or we don't have permissions to view it." % interface_id)
+
+operational_status = operational_statuses[operational_status_id]
+check_status = 'OK' if operational_status == expected_state else 'CRITICAL'
+
+print "Interface '%s' %s: %s%s" % (
+    name,
+    check_status,
+    operational_status,
+    " (%s)" % alias if len(alias) > 0 else '',
+    )
+
+if debug:
+    for name, val in result:
+        print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+
