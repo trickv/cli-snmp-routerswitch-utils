@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -u
+set -e
+
+rm -rf activate .env
+
+virtualenv .env
+
+ln -s .env/bin/activate activate
+
+set +u
+source activate
+set -u
+
+pip install pysnmp
