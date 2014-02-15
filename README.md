@@ -1,4 +1,4 @@
-A collection of SNMP utilities for sysadmins working with L3 networking devices like Cisco routers.
+A collection of SNMP utilities for sysadmins working with layer 3 enabled switches, routers, and other infrastructure nerd devices.
 
 I'm using PySNMP...not totally thrilled with it, but Python should make it rather maintainable.
 
