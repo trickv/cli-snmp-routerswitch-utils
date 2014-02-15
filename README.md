@@ -10,11 +10,11 @@ Common SNMP queries I run are to do with:
 
 Scripts I'd like to write and assemble here:
 * CLI utilities:
-** show-ip-sla: shows the current configuration of IP SLA objects on a Cisco router
-** show-interface-status: print table of each interface and state
-** show-apc-ups-status: print a table of basic status of each UPS
+ * show-ip-sla: shows the current configuration of IP SLA objects on a Cisco router
+ * show-interface-status: print table of each interface and state
+ * show-apc-ups-status: print a table of basic status of each UPS
 * Nagios checks:
-** check_ospf_neighborship_interface: verify that the specified interface has a neighborship
+ * check_ospf_neighborship_interface: verify that the specified interface has a neighborship
    this probably already exists...
-** check_apc_ups_power: check for power outage (longer than 30 seconds) - to be pager-worthy
-** check_ip_sla: check that a configured IP SLA is not failing (to detect ISP outages)
+ * check_apc_ups_power: check for power outage (longer than 30 seconds) - to be pager-worthy
+ * check_ip_sla: check that a configured IP SLA is not failing (to detect ISP outages)
