@@ -8,6 +8,8 @@ Common SNMP queries I run are to do with:
 * IP SLA objects on Cisco routers (Cisco RTTMON MIB)
 * APC UPSes (IP-enabled management cards and PowerChute on Windows) - PowerNet-MIB
 
+== To Do ==
+
 Scripts I'd like to write and assemble here:
 * CLI utilities:
  * show-ip-sla: shows the current configuration of IP SLA objects on a Cisco router
@@ -18,3 +20,9 @@ Scripts I'd like to write and assemble here:
    this probably already exists...
  * check_apc_ups_power: check for power outage (longer than 30 seconds) - to be pager-worthy
  * check_ip_sla: check that a configured IP SLA is not failing (to detect ISP outages)
+
+=== MIBs to research ===
+
+* Review CISCO-NTP-MIB (http://tools.cisco.com/Support/SNMP/do/BrowseMIB.do?local=en&step=2&mibName=CISCO-NTP-MIB) - clock is at CISCO-NTP-MIB::cntpSysClock
+ * I wonder if there's something generic that will work on other platforms...
+* Review CISCO-HSRP-MIB (http://tools.cisco.com/Support/SNMP/do/BrowseOID.do?local=en&translate=Translate&objectInput=ciscoHsrpMIB#oidContent) - could be fun 
