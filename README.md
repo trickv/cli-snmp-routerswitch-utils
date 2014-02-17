@@ -1,3 +1,7 @@
+# Status
+
+I haven't committed much of the below yet.  I've implemented some of it over the years in bash scripts which I'll add at some point.
+
 # Overview
 
 A collection of SNMP utilities for sysadmins working with layer 3 enabled switches, routers, and other infrastructure nerd devices.
