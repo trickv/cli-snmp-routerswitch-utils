@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+import sys
+import traceback
+
+nagios_unknown = 3
+nagios_critical = 2
+
+def format_octet_string_as_ip(octet_string):
+    output = ""
+    for number in octet_string.asNumbers():
+        if len(output) > 0:
+            output += '.'
+        output += str(number)
+    return output
+
+try:
+    from pysnmp.entity.rfc3413.oneliner import cmdgen
+
+    if len(sys.argv) != 3 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
+        print "Usage: %s <host> <sla id>"
+        sys.exit(1)
+    hostname = sys.argv[1]
+    sla_id = int(sys.argv[2])
+
+    oper_sense = {
+        0: 'inactive',
+        1: 'ok',
+        4: 'timeout',
+    }
+    
+    rttmon_oid = '1.3.6.1.4.1.9.9.42.1.2'
+    sense_suboid = '10.1.2'
+    owner_suboid = '1.1.2'
+    tag_suboid = '1.1.3'
+    oper_time_suboid = '10.1.1'
+    target_suboid = '2.1.2'
+
+    cmdGen = cmdgen.CommandGenerator()
+    errorIndication, errorStatus, errorIndex, result = cmdGen.getCmd(
+        cmdgen.CommunityData('foo', 'public'),
+        cmdgen.UdpTransportTarget((hostname, 161), timeout = 5),
+        "%s.%s.%d" % (rttmon_oid, sense_suboid, sla_id),
+        "%s.%s.%d" % (rttmon_oid, owner_suboid, sla_id),
+        "%s.%s.%d" % (rttmon_oid, tag_suboid, sla_id),
+        "%s.%s.%d" % (rttmon_oid, oper_time_suboid, sla_id),
+        "%s.%s.%d" % (rttmon_oid, target_suboid, sla_id),
+    )
+    if errorIndication or errorStatus:
+        raise Exception("SNMP Error: %s, %s" % (errorIndication, errorStatus))
+
+    import pprint
+    for a, b in result:
+        print a
+
+    sla_full_identifier = "id %d" % sla_id
+    if result[1][1]:
+        sla_full_identifier += " owner %s" % result[1][1]
+    if result[2][1]:
+        sla_full_identifier += " tag %s" % result[2][1]
+
+    status_string = "SLA %s: %s to target %s time %dms" % (
+        sla_full_identifier,
+        oper_sense[result[0][1]] if oper_sense.has_key(result[0][1]) else result[0][1],
+        format_octet_string_as_ip(result[4][1]),
+        result[3][1],
+    )
+
+    print status_string
+    if result[0][1] != 1:
+        sys.exit(nagios_critical)
+
+except Exception, message:
+    # If anything unhandled happens, we need to return state UNKNOWN (3)
+    print message
+    traceback.print_exc(file=sys.stdout)
+    sys.exit(nagios_unknown)
