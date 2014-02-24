@@ -64,10 +64,10 @@ base_oid = '1.3.6.1.4.1.9.9.42.1.2'
 
 fields = [
     ("Owner", "%10s", "1.1.2"),
-    ("Tag", "%10s", "1.1.3"),
-    ("Status", "%15s", "1.1.9"),
-    ("Protocol", "%15s", "2.1.1"),
-    ("Frequency", "%10s", "1.1.6"),
+    ("Tag", "%30s", "1.1.3"),
+    ("Status", "%13s", "1.1.9"),
+    ("Protocol", "%12s", "2.1.1"),
+    ("Freq", "%5s", "1.1.6"),
     ("Target", "%15s", "2.1.2"),
     ("Source", "%15s", "2.1.6"),
     ("Oper State", "%15s", "9.1.10"),
@@ -81,13 +81,13 @@ sla_count = len(result)
 print ("SLAs: %d" % sla_count)
 
 slas = []
-slas.append(" ID: ")
+slas.append("ID: ")
 
 for name, format_string, oid in fields:
     slas[0] += format_string % name
 
 for sla_id in range(1, sla_count + 1):
-    slas.append("%3d: " % sla_id)
+    slas.append("%2d: " % sla_id)
 
 for field, format_string, suboid in fields:
     target_oid = "%s.%s" % (base_oid, suboid)
