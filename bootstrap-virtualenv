@@ -5,12 +5,14 @@ set -e
 
 rm -rf activate .env
 
-virtualenv .env
+virtualenv --no-site-packages .env
 
 ln -s .env/bin/activate activate
 
 set +u
 source activate
 set -u
+
+easy_install --upgrade pip
 
 pip install pysnmp
