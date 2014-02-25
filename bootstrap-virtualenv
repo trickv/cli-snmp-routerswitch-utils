@@ -13,6 +13,4 @@ set +u
 source activate
 set -u
 
-easy_install --upgrade pip
-
 pip install pysnmp
