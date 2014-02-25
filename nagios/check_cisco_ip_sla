@@ -3,6 +3,9 @@
 import sys
 import traceback
 
+# HACK
+import pprint
+
 nagios_unknown = 3
 nagios_critical = 2
 
@@ -36,22 +39,26 @@ try:
     oper_time_suboid = '10.1.1'
     target_suboid = '2.1.2'
 
+    def oid_str_to_tuple(oid_str):
+        # HACK: for py25-snmp4-4.1.7a fbsd 7.0, we need to send OIDs as (1,2,3,4) rather than "1.2.3.4"
+        out = ()
+        for element in oid_str.split('.'):
+            out += (int(element),)
+        pprint.pprint(out)
+        return out
+
     cmdGen = cmdgen.CommandGenerator()
     errorIndication, errorStatus, errorIndex, result = cmdGen.getCmd(
         cmdgen.CommunityData('foo', 'public'),
         cmdgen.UdpTransportTarget((hostname, 161), timeout = 5),
-        "%s.%s.%d" % (rttmon_oid, sense_suboid, sla_id),
-        "%s.%s.%d" % (rttmon_oid, owner_suboid, sla_id),
-        "%s.%s.%d" % (rttmon_oid, tag_suboid, sla_id),
-        "%s.%s.%d" % (rttmon_oid, oper_time_suboid, sla_id),
-        "%s.%s.%d" % (rttmon_oid, target_suboid, sla_id),
+        oid_str_to_tuple("%s.%s.%d" % (rttmon_oid, sense_suboid, sla_id)),
+        oid_str_to_tuple("%s.%s.%d" % (rttmon_oid, owner_suboid, sla_id)),
+        oid_str_to_tuple("%s.%s.%d" % (rttmon_oid, tag_suboid, sla_id)),
+        oid_str_to_tuple("%s.%s.%d" % (rttmon_oid, oper_time_suboid, sla_id)),
+        oid_str_to_tuple("%s.%s.%d" % (rttmon_oid, target_suboid, sla_id)),
     )
     if errorIndication or errorStatus:
         raise Exception("SNMP Error: %s, %s" % (errorIndication, errorStatus))
-
-    import pprint
-    for a, b in result:
-        print a
 
     sla_full_identifier = "id %d" % sla_id
     if result[1][1]:
@@ -59,10 +66,14 @@ try:
     if result[2][1]:
         sla_full_identifier += " tag %s" % result[2][1]
 
+    pprint.pprint(result[4][1])
+    print dir(result[4][1])
+    print result[4][1].prettyPrint()
+
     status_string = "SLA %s: %s to target %s time %dms" % (
         sla_full_identifier,
         oper_sense[result[0][1]] if oper_sense.has_key(result[0][1]) else result[0][1],
-        format_octet_string_as_ip(result[4][1]),
+        result[4][1],
         result[3][1],
     )
 
