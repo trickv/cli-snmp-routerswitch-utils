@@ -16,7 +16,7 @@ try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 
     if len(sys.argv) != 3 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
-        print "Usage: %s <host> <sla id>"
+        print "Usage: %s <host> <sla id>" % sys.argv[0]
         sys.exit(1)
     hostname = sys.argv[1]
     sla_id = int(sys.argv[2])
